@@ -1,0 +1,182 @@
+<html>
+<head>
+	<title>1942 Game</title>
+
+<style type="text/css">
+	body{
+		background-color:black;
+	}
+	#container{
+		background: url('background.jpg');
+		width:800px;
+		height:550px;
+	}
+	#hero{
+		background: url('1942.gif');
+		background-position: -85px -180px;
+		width:28px;
+		height:28px;
+		position:absolute;
+	}
+	.enemy1{
+		background: url('1942.gif');
+		background-position: -30px -10px;
+		width:28px;
+		height:28px;
+		position:absolute;
+	}
+
+	.enemy2{
+		background: url(1942.gif);
+    	background-position: 140px -160px;
+    	width: 18px;
+    	height: 15px;
+    	position: absolute
+	}
+	.bullet{
+		background: url('1942.gif');
+		background-position: -185px -400px;
+		width:18px;
+		height:18px;
+		position:absolute;
+	}
+	#score{
+		position:absolute;
+		border:10px solid red;
+		top:20px;
+		left:800px;
+		background-color:white;
+		padding:10px;
+		font-size:30px;
+		font-family: Arial;	
+	}
+</style>
+</head>
+<body>
+	<audio id='hit'>
+		<source src="explosion.mp3" type="audio/mp3">
+	</audio>
+	<div id='container'>
+		<div id='hero'></div>
+		<div id='enemies'></div>
+		<div id='bullets'></div>
+		<div id='enemy2'>
+			<!-- <div class='enemy2' style='top:500px; left: 100px;'></div>  -->
+		</div>
+
+	<div id='score'>100</div>
+
+
+<script>
+	var hit = document.getElementById('hit');
+	var score = 100;
+	var hero ={
+		x: 400,
+		y: 500
+	};
+	var enemies =[{x:250, y:600},{x:300, y:600},{x:350, y:600},{x:350, y:600},{x:350, y:600},{x:350, y:600}];
+	var enemies2 = [{x:700, y:200}];
+	var bullets =[]
+
+	document.onkeydown = function(a){
+		if(a.keyCode == 37){
+			hero.x -= 10;
+		} else if(a.keyCode ==39){
+			hero.x += 10;
+		} else if(a.keyCode ==40){
+			hero.y +=10;
+		} else if(a.keyCode ==38){
+			hero.y -=10;
+		} else if(a.keyCode ==32){
+			bullets.push({x: hero['x']+5, y:hero['y']-10});
+			displayBullets()
+		}
+		displayHero();
+	}
+	//keycode reference sheet
+		// right = 39, 68
+		// up = 38, 87
+		// down = 40, 83
+		// left = 37, 65
+		// space = 32
+	function displayBullets(){
+		output ='';
+		for (var i=0; i<bullets.length;i++){
+			output+= "<div class='bullet' style='top:"+bullets[i].y+"px; left:"+bullets[i].x+"px;'></div>"
+		}
+		document.getElementById('bullets').innerHTML=output;
+	}
+
+	function displayEnemies(){
+		var output='';
+		for(var i=0; i<enemies.length; i++){
+			output+= "<div class='enemy1' style='top:"+enemies[i].y+"px; left:"+enemies[i].x+"px;'></div>"
+		}
+		for (var j=0; j<enemies2.length;j++){
+			output+= "<div class='enemy2' style='top:"+enemies2[j].y+"px; left:"+enemies2[j].x+"px;'></div>"
+		}
+		document.getElementById('enemies').innerHTML = output;
+	}
+
+	function displayHero(){
+		document.getElementById('hero').style['top'] = hero.y + 'px';
+		document.getElementById('hero').style['left'] = hero.x + 'px';
+	}
+
+	function moveEnemies(){
+		for(var i=0; i<enemies.length;i++){
+			enemies[i].y +=5;
+			if (enemies[i].y > 550){
+				enemies[i].y = 0;
+				enemies[i].x = Math.floor(Math.random()*600) + 100;
+			}
+		}
+		for(var j=0; j<enemies2.length;j++){
+			enemies2[j].x -=20;
+			if(enemies2[j].x <0){
+				enemies2[j].x =800
+				enemies2[j].y = Math.floor(Math.random()*300) + 100;
+			}
+		}
+	}
+
+	function moveBullets(){
+		for(var i=0; i<bullets.length;i++){
+			bullets[i].y -=10;
+			if (bullets[i].y<0){
+				bullets[i] = bullets[bullets.length-1];
+				bullets.pop();
+			}
+		}
+	}
+
+	function collsion(){
+		for(var i = 0; i<enemies.length; i++){
+			for(var j = 0; j<bullets.length;j++){
+				if (Math.abs(enemies[i].x - bullets[j].x) < 10 && Math.abs(enemies[i].y - bullets[j].y) < 10){
+					score += 10;
+					document.getElementById('score').innerHTML = score;
+					bullets[j] = bullets[bullets.length-1];
+					bullets.pop();
+					enemies[i] = enemies[enemies.length-1];
+					enemies.pop();
+					hit.play();
+
+			}	
+		}
+	}
+}
+	function gameLoop(){
+		displayHero();
+		moveEnemies();
+		displayEnemies();	
+		moveBullets();
+		displayBullets();
+		collsion();
+	}
+
+	setInterval(gameLoop, 100);	
+</script>
+
+</body>
+</html>
